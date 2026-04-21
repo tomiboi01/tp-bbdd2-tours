@@ -1,84 +1,84 @@
-// package unlp.info.bd2;
+package unlp.info.bd2;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.test.annotation.Rollback;
-// import org.springframework.test.context.ContextConfiguration;
-// import org.springframework.test.context.junit.jupiter.SpringExtension;
-// import org.springframework.test.context.support.AnnotationConfigContextLoader;
-// import org.springframework.transaction.annotation.Transactional;
-// import unlp.info.bd2.config.AppConfig;
-// import unlp.info.bd2.config.HibernateConfiguration;
-// import unlp.info.bd2.services.ToursService;
-// import unlp.info.bd2.utils.ToursException;
-// import unlp.info.bd2.model.*;
-// import java.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.transaction.annotation.Transactional;
+import unlp.info.bd2.config.AppConfig;
+import unlp.info.bd2.config.HibernateConfiguration;
+import unlp.info.bd2.services.ToursService;
+import unlp.info.bd2.utils.ToursException;
+import unlp.info.bd2.model.*;
+import java.util.*;
 
-// import static org.junit.jupiter.api.Assertions.*;
-
-
-// @SpringBootTest
-// @ContextConfiguration(classes = {HibernateConfiguration.class, AppConfig.class}, loader = AnnotationConfigContextLoader.class)
-// @ExtendWith(SpringExtension.class)
-// @Transactional
-// @Rollback(true)
-// class ToursApplicationTests {
-
-// 	@Autowired
-// 	private ToursService toursService;
-
-// 	private Date dob1;
-// 	private Date dob2;
-// 	private Date dpri;
-// 	private Date dyes;
-
-// 	@BeforeEach
-// 	public void setUp(){
-// 		Calendar cal1 = Calendar.getInstance();
-// 		cal1.set(1980, Calendar.APRIL, 5);
-// 		this.dob1 = cal1.getTime();
-// 		cal1.set(1992, Calendar.SEPTEMBER, 16);
-// 		this.dob2 = cal1.getTime();
-// 		cal1.set(2022, Calendar.SEPTEMBER, 21);
-// 		this.dpri = cal1.getTime();
-// 		cal1.set(2024,Calendar.MARCH, 20);
-// 		this.dyes = cal1.getTime();
-// 	}
+import static org.junit.jupiter.api.Assertions.*;
 
 
-// 	@Test
-// 	void createAndGetUserTest()  throws ToursException {
-// 		User user1 = this.toursService.createUser("user1", "1234", "Usuario Uno", "user1@gmail.com", dob1, "000111222333");
-// 		assertNotNull(user1.getId());
-// 		assertEquals("user1", user1.getUsername());
-// 		assertEquals("Usuario Uno", user1.getName());
-// 		assertEquals("user1@gmail.com", user1.getEmail());
-// 		assertEquals(dob1, user1.getBirthdate());
-// 		DriverUser driverUser1 = this.toursService.createDriverUser("userD", "1234", "Usuario Driver", "userd@gmail.com", dob2, "000111222444", "exp...");
-// 		assertNotNull(driverUser1.getId());
-// 		TourGuideUser tourGuideUser1 = this.toursService.createTourGuideUser("userG", "1234", "Usuario TourGuide", "userg@gmail.com", dob2, "000111222555", "edu...");
-// 		assertNotNull(tourGuideUser1.getId());
+@SpringBootTest
+@ContextConfiguration(classes = {HibernateConfiguration.class, AppConfig.class}, loader = AnnotationConfigContextLoader.class)
+@ExtendWith(SpringExtension.class)
+@Transactional
+@Rollback(true)
+class ToursApplicationTests {
 
-// 		Optional<User> opUserFromDB = this.toursService.getUserById(user1.getId());
-// 		assertTrue(opUserFromDB.isPresent());
-// 		User user = opUserFromDB.get();
-// 		assertEquals(user1.getId(), user.getId());
-// 		assertEquals("user1", user.getUsername());
-// 		assertEquals("Usuario Uno", user.getName());
-// 		assertEquals("user1@gmail.com", user.getEmail());
-// 		assertTrue(user.getPurchaseList().isEmpty());
+	@Autowired
+	private ToursService toursService;
 
-// 		Optional<User> opUserFromDB2 = this.toursService.getUserByUsername("userD");
-// 		assertTrue(opUserFromDB2.isPresent());
-// 		DriverUser driverUser = (DriverUser) opUserFromDB2.get();
-// 		assertEquals(driverUser.getId(), driverUser1.getId());
-// 		assertEquals(driverUser.getExpedient(), "exp...");
+	private Date dob1;
+	private Date dob2;
+	private Date dpri;
+	private Date dyes;
 
-// 		assertThrows(ToursException.class, () -> this.toursService.createUser("userD", "1234", "Otro usuario", "otromail@gmail.com", dob1, "000111222999"), "Constraint Violation");
-// 	}
+	@BeforeEach
+	public void setUp(){
+		Calendar cal1 = Calendar.getInstance();
+		cal1.set(1980, Calendar.APRIL, 5);
+		this.dob1 = cal1.getTime();
+		cal1.set(1992, Calendar.SEPTEMBER, 16);
+		this.dob2 = cal1.getTime();
+		cal1.set(2022, Calendar.SEPTEMBER, 21);
+		this.dpri = cal1.getTime();
+		cal1.set(2024,Calendar.MARCH, 20);
+		this.dyes = cal1.getTime();
+	}
+
+
+	@Test
+	void createAndGetUserTest()  throws ToursException {
+		User user1 = this.toursService.createUser("user1", "1234", "Usuario Uno", "user1@gmail.com", dob1, "000111222333");
+		assertNotNull(user1.getId());
+		assertEquals("user1", user1.getUsername());
+		assertEquals("Usuario Uno", user1.getName());
+		assertEquals("user1@gmail.com", user1.getEmail());
+		assertEquals(dob1, user1.getBirthdate());
+		DriverUser driverUser1 = this.toursService.createDriverUser("userD", "1234", "Usuario Driver", "userd@gmail.com", dob2, "000111222444", "exp...");
+		assertNotNull(driverUser1.getId());
+		TourGuideUser tourGuideUser1 = this.toursService.createTourGuideUser("userG", "1234", "Usuario TourGuide", "userg@gmail.com", dob2, "000111222555", "edu...");
+		assertNotNull(tourGuideUser1.getId());
+
+		Optional<User> opUserFromDB = this.toursService.getUserById(user1.getId());
+		assertTrue(opUserFromDB.isPresent());
+		User user = opUserFromDB.get();
+		assertEquals(user1.getId(), user.getId());
+		assertEquals("user1", user.getUsername());
+		assertEquals("Usuario Uno", user.getName());
+		assertEquals("user1@gmail.com", user.getEmail());
+		assertTrue(user.getPurchaseList().isEmpty());
+
+		Optional<User> opUserFromDB2 = this.toursService.getUserByUsername("userD");
+		assertTrue(opUserFromDB2.isPresent());
+		DriverUser driverUser = (DriverUser) opUserFromDB2.get();
+		assertEquals(driverUser.getId(), driverUser1.getId());
+		assertEquals(driverUser.getExpedient(), "exp...");
+
+		assertThrows(ToursException.class, () -> this.toursService.createUser("userD", "1234", "Otro usuario", "otromail@gmail.com", dob1, "000111222999"), "Constraint Violation");
+	}
 
 // 	@Test
 // 	void updateUserTest()  throws ToursException {
@@ -338,4 +338,4 @@
 // 		assertThrows(ToursException.class, () -> this.toursService.deleteUser(tourGuideUser), "El usuario no puede ser desactivado");
 // 	}
 
-// }
+}

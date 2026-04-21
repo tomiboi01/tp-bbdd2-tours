@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 @Entity
 @DiscriminatorValue("TOUR_GUIDE")
 public class TourGuideUser extends User {
@@ -32,4 +35,5 @@ public class TourGuideUser extends User {
         this.routes = routes;
     }
 
+    
 }

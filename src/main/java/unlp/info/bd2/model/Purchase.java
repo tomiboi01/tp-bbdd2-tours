@@ -24,10 +24,10 @@ public class Purchase {
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToOne(mappedBy = "purchase")
+    @OneToOne(mappedBy = "purchase", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Review review;
 
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
     private List<ItemService> itemServiceList;
 
 

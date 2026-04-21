@@ -24,7 +24,7 @@ public class User {
 
     private String phoneNumber;
 
-    private boolean active;
+    private boolean active = true;
     @OneToMany(mappedBy = "user")
     private List<Purchase> purchaseList;
 
@@ -99,5 +99,17 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public User(String username, String password, String name, String email, Date birthdate, String phoneNumber) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.birthdate = birthdate;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public User() {
     }
 }
