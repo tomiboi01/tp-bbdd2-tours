@@ -17,21 +17,38 @@ public class Route {
     private float totalKm;
 
     private int maxNumberUsers;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "route_id")
-    private List<Stop> stops;
+    private List<Stop> stops = new java.util.ArrayList<Stop>();
 
     @ManyToMany
     @JoinTable(name="DriverUser_Route", 
     joinColumns=@JoinColumn(name="route_id", referencedColumnName="id"),
     inverseJoinColumns=@JoinColumn(name="driver_id", referencedColumnName="id"))
-    private List<DriverUser> driverList;
+    private List<DriverUser> driverList = new java.util.ArrayList<DriverUser>();
 
     @ManyToMany
     @JoinTable(name="TourGuideUser_Route", 
     joinColumns=@JoinColumn(name="route_id", referencedColumnName="id"),
     inverseJoinColumns=@JoinColumn(name="tour_guide_id", referencedColumnName="id"))
-    private List<TourGuideUser> tourGuideList;
+    private List<TourGuideUser> tourGuideList = new java.util.ArrayList<TourGuideUser>();
+
+    public Route(String name2, float price2, float totalKm2, int maxNumberOfUsers, List<Stop> stops2) {
+        this.name = name2;
+        this.price = price2;
+        this.totalKm = totalKm2;
+        this.maxNumberUsers = maxNumberOfUsers;
+        this.stops = stops2;
+    }
+    public void addStop(Stop stop) {
+        this.stops.add(stop);
+    }
+    public void addDriver(DriverUser driver) {
+        this.driverList.add(driver);
+    }
+    public void addTourGuide(TourGuideUser tourGuide) {
+        this.tourGuideList.add(tourGuide);
+    }
 
     public Long getId() {
         return id;

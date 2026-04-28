@@ -26,7 +26,7 @@ public class User {
 
     private boolean active = true;
     @OneToMany(mappedBy = "user")
-    private List<Purchase> purchaseList;
+    private List<Purchase> purchaseList = new ArrayList<Purchase>();
 
 
     public Long getId() {

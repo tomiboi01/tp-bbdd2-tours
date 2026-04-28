@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import unlp.info.bd2.utils.DBInitializer;
 
-@Configurationpublic class DBInitializerConfig {
+@Configuration
+public class DBInitializerConfig {
     @Bean
     @Primary
     public DBInitializer createDBInitializer() {

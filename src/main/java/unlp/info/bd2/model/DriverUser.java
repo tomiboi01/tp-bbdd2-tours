@@ -11,8 +11,8 @@ public class DriverUser extends User {
     @Column(nullable=true)
     private String expedient;
 
-    @ManyToMany(mappedBy = "driverList")
-    private List<Route> routes;
+    @ManyToMany(mappedBy = "driverList", cascade = { CascadeType.PERSIST, CascadeType.MERGE }) 
+    private List<Route> routes = new java.util.ArrayList<Route>();
 
     public String getExpedient() {
         return expedient;
@@ -28,5 +28,19 @@ public class DriverUser extends User {
 
     public void setRouts(List<Route> routs) {
         this.routes = routs;
+    }
+
+    public void addRoute(Route route) {
+        this.routes.add(route);
+        route.addDriver(this);
+    }
+
+    public DriverUser() {
+        super();
+    }
+    public DriverUser(String username, String password, String fullName, String email, java.util.Date birthdate,
+            String phoneNumber, String expedient) {
+        super(username, password, fullName, email, birthdate, phoneNumber);
+        this.expedient = expedient;
     }
 }

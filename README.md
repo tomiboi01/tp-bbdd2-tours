@@ -110,3 +110,22 @@ Para agregar una restricción de unicidad a nivel de columna, podemos utilizar l
 ### Ejercicio 20.​Implementar el mapeo completo de las siguientes entidades con todas sus relaciones, siguiendo las anotaciones y decisiones discutidas: Supplier, Purchase, ItemService, Route, Stop y Review. Para cada relación bidireccional, incluir las anotaciones en ambos lados.
 
 - Realizado en el repositorio 
+
+### Ejercicio 42
+ ¿Que es una transacción en el contexto de Hibernate? ¿Por qué es necesaria? ¿Qué 
+ocurre si se realizan operaciones de escritura sin una transacción activa?
+
+Se corresponde con una transacción de base de datos, es una unidad lógica de trabajo, que se completa toda o no se hace. Es necesaria porque si no se trabaja con ellas, puede haber corrupción o inconsistencia de datos resultante en la BD.
+
+### Ejercicio 43
+ ¿En qué capa de la aplicación debería gestionarse la transacción: en el repositorio o en la 
+capa de servicio? Justificar la elección. ¿Qué ocurre si una misma operación necesita de 
+varios accesos a la base de datos? 
+
+En la capa de servicio, ya que 
+
+
+tengo que hacer un refresh del user para que funcione el assert de los tests? (linea 233)
+Estan bien hecho asi los adddrivertoroute y lo del itemservice? y bien distribuido entre las capas?
+listas de rutas separadas en los users? pasa q sino te queda una sola lista de users en route, y no separado por driver y tourguide
+siempre tengo que agregar la relación de los dos lados para que se persista?

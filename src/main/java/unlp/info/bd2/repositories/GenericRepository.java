@@ -1,4 +1,4 @@
-package unlp.repositories;
+package unlp.info.bd2.repositories;
 
 import java.util.List;
 import java.util.Optional;

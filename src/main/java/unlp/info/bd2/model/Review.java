@@ -15,6 +15,12 @@ public class Review {
     private Purchase purchase;
 
 
+    public Review(int rating2, String comment2, Purchase purchase2) {
+        this.rating = rating2;
+        this.comment = comment2;
+        this.purchase = purchase2;
+    }
+
     public Long getId() {
         return id;
     }

@@ -24,12 +24,22 @@ public class Service {
     private String description;
     
     @OneToMany(mappedBy = "service")
-    private List<ItemService> itemServiceList;
+    private List<ItemService> itemServiceList = new ArrayList<ItemService>();
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
+
+    public Service(String name2, float price2, String description2, Supplier supplier) {
+        this.name = name2;
+        this.price = price2;
+        this.description = description2;
+        this.supplier = supplier;
+        this.itemServiceList = new ArrayList<ItemService>();
+    }
+    public Service() {
+    }
 
     public Long getId() {
         return id;

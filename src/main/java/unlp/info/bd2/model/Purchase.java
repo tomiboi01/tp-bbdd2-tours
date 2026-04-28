@@ -28,9 +28,22 @@ public class Purchase {
     private Review review;
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.REMOVE)
-    private List<ItemService> itemServiceList;
+    private List<ItemService> itemServiceList = new java.util.ArrayList<ItemService>();
 
 
+    public Purchase(String code2, Route route2, User user2) {
+        this.code = code2;
+        this.route = route2;
+        this.user = user2;
+        this.date = Date.from(java.time.Instant.now());
+    }
+
+    public Purchase(String code2, Date date2, Route route2, User user2) {
+        this.code = code2;
+        this.date = date2;
+        this.route = route2;
+        this.user = user2;
+    }
 
     public Long getId() {
         return id;
@@ -49,7 +62,7 @@ public class Purchase {
     }
 
     public float getTotalPrice() {
-        return totalPrice;
+        return this.getRoute().getPrice() + this.getItemServiceList().stream().map(item -> item.getService().getPrice() * item.getQuantity()).reduce(0f, Float::sum);
     }
 
     public void setTotalPrice(float totalPrice) {

@@ -14,7 +14,12 @@ public class Supplier {
     private String authorizationNumber;
 
     @OneToMany(mappedBy = "supplier")
-    private List<Service> services;
+    private List<Service> services = new java.util.ArrayList<Service>();
+
+    public Supplier(String businessName2, String authorizationNumber2) {
+        this.businessName = businessName2;
+        this.authorizationNumber = authorizationNumber2;
+    }
 
     public Long getId() {
         return id;
@@ -42,6 +47,10 @@ public class Supplier {
 
     public List<Service> getServices() {
         return services;
+    }
+    public void addService(Service service) {
+        this.services.add(service);
+        service.setSupplier(this);
     }
 
     public void setServices(List<Service> services) {

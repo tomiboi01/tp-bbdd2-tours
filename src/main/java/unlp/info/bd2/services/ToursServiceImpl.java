@@ -16,243 +16,258 @@ import unlp.info.bd2.model.Stop;
 import unlp.info.bd2.model.Supplier;
 import unlp.info.bd2.model.TourGuideUser;
 import unlp.info.bd2.model.User;
+import unlp.info.bd2.repositories.ToursRepository;
 import unlp.info.bd2.repositories.UserRepository;
 import unlp.info.bd2.utils.ToursException;
 
 @Service
 public class ToursServiceImpl implements ToursService {
     @Autowired
-    private UserRepository userRepository;
+    private ToursRepository toursRepository;
+
+    public ToursServiceImpl(ToursRepository repository) {
+        this.toursRepository = repository;
+    }
 
     @Override
     public User createUser(String username, String password, String fullName, String email, Date birthdate, String phoneNumber) throws ToursException {
-        User user = new User(username, password, fullName, email, birthdate, phoneNumber);
-        return userRepository.save(user);
+            if (alreadyRegisteredName(username)) {
+                throw new ToursException("Username already exists: " + username);
+            }
+        return toursRepository.createUser(username, password, fullName, email, birthdate, phoneNumber);
     }
 
     @Override
     public DriverUser createDriverUser(String username, String password, String fullName, String email, Date birthdate,
             String phoneNumber, String expedient) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createDriverUser'");
+        if (alreadyRegisteredName(username)) {
+                throw new ToursException("Username already exists: " + username);
+            }
+        return toursRepository.createDriverUser(username, password, fullName, email, birthdate, phoneNumber, expedient);
     }
 
     @Override
     public TourGuideUser createTourGuideUser(String username, String password, String fullName, String email,
             Date birthdate, String phoneNumber, String education) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createTourGuideUser'");
+            if (alreadyRegisteredName(username)) {
+                throw new ToursException("Username already exists: " + username);
+            }
+        return toursRepository.createTourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
     }
 
     @Override
     public Optional<User> getUserById(Long id) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+        return toursRepository.getUserById(id);
     }
 
     @Override
     public Optional<User> getUserByUsername(String username) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserByUsername'");
+        return toursRepository.getUserByUsername(username);
     }
 
     @Override
     public User updateUser(User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+        User userWithUsername = toursRepository.getUserByUsername(user.getUsername()).orElse(null);
+        if (userWithUsername != null && !userWithUsername.getId().equals(user.getId())) {
+            throw new ToursException("Username already exists: " + user.getUsername());
+        }
+        return toursRepository.updateUser(user);
     }
 
     @Override
     public void deleteUser(User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+        toursRepository.deleteUser(user);
     }
 
     @Override
     public Stop createStop(String name, String description) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createStop'");
+        return toursRepository.createStop(name, description);
     }
 
     @Override
     public List<Stop> getStopByNameStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStopByNameStart'");
+        return toursRepository.getStopByNameStart(name);
     }
 
     @Override
     public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops)
             throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createRoute'");
+
+        return toursRepository.createRoute(name, price, totalKm, maxNumberOfUsers, stops);
     }
 
     @Override
     public Optional<Route> getRouteById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRouteById'");
+        
+        return toursRepository.getRouteById(id);
     }
 
     @Override
     public List<Route> getRoutesBelowPrice(float price) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutesBelowPrice'");
+        return toursRepository.getRoutesBelowPrice(price);
+        
     }
 
     @Override
     public void assignDriverByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignDriverByUsername'");
+        User user = toursRepository.getUserByUsername(username)
+                .orElseThrow(() -> new ToursException("User not found with username: " + username));
+        if (!(user instanceof DriverUser)) {
+            throw new ToursException("User with username " + username + " is not a DriverUser");
+        }
+        Route route = toursRepository.getRouteById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found with id: " + idRoute));
+        DriverUser driverUser = (DriverUser) user;
+        driverUser.addRoute(route);
+        toursRepository.updateUser(driverUser);
     }
 
     @Override
     public void assignTourGuideByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignTourGuideByUsername'");
+        User user = toursRepository.getUserByUsername(username)
+                .orElseThrow(() -> new ToursException("User not found with username: " + username));
+        if (!(user instanceof TourGuideUser)) {
+            throw new ToursException("User with username " + username + " is not a TourGuideUser");
+        }
+        Route route = toursRepository.getRouteById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found with id: " + idRoute));
+        TourGuideUser tourGuideUser = (TourGuideUser) user;
+        tourGuideUser.addRoute(route);
+        toursRepository.updateUser(tourGuideUser);
     }
 
     @Override
     public Supplier createSupplier(String businessName, String authorizationNumber) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createSupplier'");
+        if (toursRepository.getSupplierByAuthorizationNumber(authorizationNumber).isPresent()) {
+            throw new ToursException("Supplier with authorization number " + authorizationNumber + " already exists");
+        }
+        return toursRepository.createSupplier(businessName, authorizationNumber);
     }
 
     @Override
     public unlp.info.bd2.model.Service addServiceToSupplier(String name, float price, String description,
             Supplier supplier) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addServiceToSupplier'");
-    }
+        unlp.info.bd2.model.Service service = new unlp.info.bd2.model.Service(name, price, description, supplier);
+        toursRepository.addServiceToSupplier(service,supplier);
+
+        return service;
+}
 
     @Override
     public unlp.info.bd2.model.Service updateServicePriceById(Long id, float newPrice) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateServicePriceById'");
+        return toursRepository.updateServicePriceById(id, newPrice);
     }
 
     @Override
     public Optional<Supplier> getSupplierById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSupplierById'");
+        return toursRepository.getSupplierById(id);
     }
 
     @Override
     public Optional<Supplier> getSupplierByAuthorizationNumber(String authorizationNumber) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSupplierByAuthorizationNumber'");
+        return toursRepository.getSupplierByAuthorizationNumber(authorizationNumber);
     }
 
     @Override
     public Optional<unlp.info.bd2.model.Service> getServiceByNameAndSupplierId(String name, Long id)
-            throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getServiceByNameAndSupplierId'");
+        throws ToursException {
+        return toursRepository.getServiceByNameAndSupplierId(name, id);
     }
 
     @Override
     public Purchase createPurchase(String code, Route route, User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPurchase'");
+        return toursRepository.createPurchase(code, route, user);
     }
-
     @Override
     public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPurchase'");
+        return toursRepository.createPurchase(code, date, route, user);
     }
 
     @Override
     public ItemService addItemToPurchase(unlp.info.bd2.model.Service service, int quantity, Purchase purchase)
             throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addItemToPurchase'");
+        return toursRepository.addItemToPurchase(service, quantity, purchase);
     }
 
     @Override
     public Optional<Purchase> getPurchaseByCode(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPurchaseByCode'");
+        return toursRepository.getPurchaseByCode(code);
     }
 
     @Override
     public void deletePurchase(Purchase purchase) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deletePurchase'");
+        toursRepository.deletePurchase(purchase);
     }
 
     @Override
     public Review addReviewToPurchase(int rating, String comment, Purchase purchase) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addReviewToPurchase'");
+        return toursRepository.addReviewToPurchase(rating, comment, purchase);
     }
 
     @Override
     public void deleteRoute(Route route) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRoute'");
+        toursRepository.deleteRoute(route);
     }
 
     @Override
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllPurchasesOfUsername'");
+        return toursRepository.getAllPurchasesOfUsername(username);
     }
 
     @Override
     public List<User> getUserSpendingMoreThan(float mount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserSpendingMoreThan'");
+        return toursRepository.getUserSpendingMoreThan(mount);
     }
 
     @Override
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopNSuppliersInPurchases'");
+        return toursRepository.getTopNSuppliersInPurchases(n);
     }
 
     @Override
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCountOfPurchasesBetweenDates'");
+        return toursRepository.getCountOfPurchasesBetweenDates(start, end);
     }
 
     @Override
     public List<Route> getRoutesWithStop(Stop stop) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutesWithStop'");
+        return toursRepository.getRoutesWithStop(stop);
     }
 
     @Override
     public Long getMaxStopOfRoutes() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMaxStopOfRoutes'");
+        return toursRepository.getMaxStopOfRoutes();
     }
 
     @Override
     public List<Route> getRoutsNotSell() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutsNotSell'");
+        return toursRepository.getRoutsNotSell();
     }
 
     @Override
     public List<Route> getTop3RoutesWithMaxRating() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTop3RoutesWithMaxRating'");
+        return toursRepository.getTop3RoutesWithMaxRating();
     }
 
     @Override
     public unlp.info.bd2.model.Service getMostDemandedService() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMostDemandedService'");
+        return toursRepository.getMostDemandedService();
     }
 
     @Override
     public List<TourGuideUser> getTourGuidesWithRating1() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourGuidesWithRating1'");
+        return toursRepository.getTourGuidesWithRating1();
     }
 
-
+    private boolean alreadyRegisteredName(String username) {
+        try {
+            return toursRepository.getUserByUsername(username).isPresent();
+        } catch (ToursException e) {
+            // Manejar la excepción según sea necesario
+            e.printStackTrace();
+            return false; // O lanzar una excepción personalizada
+        }
+    }
     
     
 }
