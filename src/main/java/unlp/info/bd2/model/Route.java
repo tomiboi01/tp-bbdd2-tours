@@ -114,4 +114,5 @@ public class Route {
         this.tourGuideList = tourGuideList;
     }
 
+public Route() {  }
 }

@@ -10,7 +10,7 @@ public class Supplier {
     private Long id;
 
     private String businessName;
-
+    @Column(unique=true, nullable=false)
     private String authorizationNumber;
 
     @OneToMany(mappedBy = "supplier")
@@ -19,6 +19,9 @@ public class Supplier {
     public Supplier(String businessName2, String authorizationNumber2) {
         this.businessName = businessName2;
         this.authorizationNumber = authorizationNumber2;
+    }
+    public Supplier() {
+        super();
     }
 
     public Long getId() {

@@ -11,7 +11,7 @@ public class DriverUser extends User {
     @Column(nullable=true)
     private String expedient;
 
-    @ManyToMany(mappedBy = "driverList", cascade = { CascadeType.PERSIST, CascadeType.MERGE }) 
+    @ManyToMany(mappedBy = "driverList") 
     private List<Route> routes = new java.util.ArrayList<Route>();
 
     public String getExpedient() {

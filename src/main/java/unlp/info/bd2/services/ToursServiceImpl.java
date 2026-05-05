@@ -34,7 +34,8 @@ public class ToursServiceImpl implements ToursService {
             if (alreadyRegisteredName(username)) {
                 throw new ToursException("Username already exists: " + username);
             }
-        return toursRepository.createUser(username, password, fullName, email, birthdate, phoneNumber);
+        User user = new User(username, password, fullName, email, birthdate, phoneNumber);
+        return toursRepository.createUser(user);
     }
 
     @Override
@@ -43,7 +44,8 @@ public class ToursServiceImpl implements ToursService {
         if (alreadyRegisteredName(username)) {
                 throw new ToursException("Username already exists: " + username);
             }
-        return toursRepository.createDriverUser(username, password, fullName, email, birthdate, phoneNumber, expedient);
+        DriverUser driverUser = new DriverUser(username, password, fullName, email, birthdate, phoneNumber, expedient);
+        return toursRepository.createDriverUser(driverUser);
     }
 
     @Override
@@ -52,7 +54,8 @@ public class ToursServiceImpl implements ToursService {
             if (alreadyRegisteredName(username)) {
                 throw new ToursException("Username already exists: " + username);
             }
-        return toursRepository.createTourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
+        TourGuideUser tourGuideUser = new TourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
+        return toursRepository.createTourGuideUser(tourGuideUser);
     }
 
     @Override
@@ -92,8 +95,8 @@ public class ToursServiceImpl implements ToursService {
     @Override
     public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops)
             throws ToursException {
-
-        return toursRepository.createRoute(name, price, totalKm, maxNumberOfUsers, stops);
+        Route route = new Route(name, price, totalKm, maxNumberOfUsers, stops);
+        return toursRepository.createRoute(route);
     }
 
     @Override
@@ -141,7 +144,8 @@ public class ToursServiceImpl implements ToursService {
         if (toursRepository.getSupplierByAuthorizationNumber(authorizationNumber).isPresent()) {
             throw new ToursException("Supplier with authorization number " + authorizationNumber + " already exists");
         }
-        return toursRepository.createSupplier(businessName, authorizationNumber);
+        Supplier supplier = new Supplier(businessName, authorizationNumber);
+        return toursRepository.createSupplier(supplier);
     }
 
     @Override
@@ -176,11 +180,13 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Purchase createPurchase(String code, Route route, User user) throws ToursException {
-        return toursRepository.createPurchase(code, route, user);
+        Purchase purchase = new Purchase(code, route, user);
+        return toursRepository.createPurchase(purchase);
     }
     @Override
     public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
-        return toursRepository.createPurchase(code, date, route, user);
+        Purchase purchase = new Purchase(code, date, route, user);
+        return toursRepository.createPurchase(purchase);
     }
 
     @Override

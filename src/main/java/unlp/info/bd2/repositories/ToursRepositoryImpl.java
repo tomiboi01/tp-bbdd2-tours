@@ -16,18 +16,14 @@ public class ToursRepositoryImpl implements ToursRepository {
     @Autowired
     protected SessionFactory sessionFactory;
     @Override
-    public User createUser(String username, String password, String fullName, String email, Date birthdate,
-            String phoneNumber) throws ToursException {
-        User user = new User(username, password, fullName, email, birthdate, phoneNumber);
+    public User createUser(User user) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(user);
         return user;
     }
 
     @Override
-    public DriverUser createDriverUser(String username, String password, String fullName, String email, Date birthdate,
-            String phoneNumber, String expedient) throws ToursException {
-        DriverUser driverUser = new DriverUser(username, password, fullName, email, birthdate, phoneNumber, expedient);
+    public DriverUser createDriverUser(DriverUser driverUser) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(driverUser);
         return driverUser;
@@ -35,9 +31,7 @@ public class ToursRepositoryImpl implements ToursRepository {
 
 
     @Override
-    public TourGuideUser createTourGuideUser(String username, String password, String fullName, String email,
-            Date birthdate, String phoneNumber, String education) throws ToursException {
-        TourGuideUser tourGuideUser = new TourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
+    public TourGuideUser createTourGuideUser(TourGuideUser tourGuideUser) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(tourGuideUser);
         return tourGuideUser;
@@ -62,7 +56,11 @@ public class ToursRepositoryImpl implements ToursRepository {
     @Override
     public User updateUser(User user) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
-        return session.merge(user);
+        try {
+            return session.merge(user);
+        } catch (Exception e) {
+            throw new ToursException("Error updating user: " + e.getMessage());
+        }
     }
 
     @Override
@@ -90,9 +88,7 @@ public class ToursRepositoryImpl implements ToursRepository {
     }
 
     @Override
-    public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops)
-            throws ToursException {
-        Route route = new Route(name, price, totalKm, maxNumberOfUsers, stops);
+    public Route createRoute(Route route) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(route);
         return route;
@@ -127,8 +123,7 @@ public class ToursRepositoryImpl implements ToursRepository {
     }
 
     @Override
-    public Supplier createSupplier(String businessName, String authorizationNumber) throws ToursException {
-        Supplier supplier = new Supplier(businessName, authorizationNumber);
+    public Supplier createSupplier(Supplier supplier) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(supplier);
         return supplier;
@@ -184,21 +179,9 @@ public class ToursRepositoryImpl implements ToursRepository {
     }
 
     @Override
-    public Purchase createPurchase(String code, Route route, User user) throws ToursException {
-        Purchase purchase = new Purchase(code, route, user);
+    public Purchase createPurchase(Purchase purchase) throws ToursException {
         Session session = sessionFactory.getCurrentSession();
         session.persist(purchase);
-        return purchase;
-    }
-
-    @Override
-    public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
-        Purchase purchase = new Purchase(code, date, route, user);
-        Session session = sessionFactory.getCurrentSession();
-        user.getPurchaseList().add(purchase);
-        session.persist(purchase);
-        session.refresh(user);
-
         return purchase;
     }
     

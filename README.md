@@ -124,8 +124,3 @@ varios accesos a la base de datos?
 
 En la capa de servicio, ya que 
 
-
-tengo que hacer un refresh del user para que funcione el assert de los tests? (linea 233)
-Estan bien hecho asi los adddrivertoroute y lo del itemservice? y bien distribuido entre las capas?
-listas de rutas separadas en los users? pasa q sino te queda una sola lista de users en route, y no separado por driver y tourguide
-siempre tengo que agregar la relación de los dos lados para que se persista?

@@ -39,4 +39,5 @@ public class Stop {
     public void setDescription(String description) {
         this.description = description;
     }
+    public Stop() {  }
 }
