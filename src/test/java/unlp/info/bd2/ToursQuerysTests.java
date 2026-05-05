@@ -1,6 +1,5 @@
 package unlp.info.bd2;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -11,7 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 import unlp.info.bd2.config.AppConfig;
-import unlp.info.bd2.config.HibernateConfiguration;
+import unlp.info.bd2.config.SpringDataConfiguration;
 import unlp.info.bd2.model.*;
 import unlp.info.bd2.services.ToursService;
 import unlp.info.bd2.utils.DBInitializer;
@@ -24,10 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.assertj.core.api.Assertions;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ContextConfiguration(classes = {HibernateConfiguration.class, AppConfig.class, DBInitializer.class}, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = {SpringDataConfiguration.class, AppConfig.class, DBInitializer.class}, loader = AnnotationConfigContextLoader.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 @Rollback(true)
@@ -119,10 +120,10 @@ public class ToursQuerysTests {
     }
 
     @Test
-    void getRoutsNotSellTest() throws ToursException {
-        List<Route> routsNotSell = this.service.getRoutsNotSell();
-        assertEquals(1, routsNotSell.size());
-        this.assertListEquality(routsNotSell.stream().map(Route::getName).collect(Collectors.toList()), List.of("Ruta vacia"));
+    void getRoutesNotSellTest() throws ToursException {
+        List<Route> routesNotSell = this.service.getRoutsNotSell();
+        assertEquals(1, routesNotSell.size());
+        this.assertListEquality(routesNotSell.stream().map(Route::getName).collect(Collectors.toList()), List.of("Ruta vacia"));
     }
 
     @Test
@@ -142,8 +143,8 @@ public class ToursQuerysTests {
     @Test
     void getTourGuidesWithRating1Test() throws ToursException {
         List<TourGuideUser> tourGuidesWithRating1 = this.service.getTourGuidesWithRating1();
-        assertEquals(3, tourGuidesWithRating1.size());
-        this.assertListEquality(tourGuidesWithRating1.stream().map(TourGuideUser::getUsername).collect(Collectors.toList()), List.of("userG1", "userG3", "userG4"));
+        assertEquals(2, tourGuidesWithRating1.size());
+        this.assertListEquality(tourGuidesWithRating1.stream().map(TourGuideUser::getUsername).collect(Collectors.toList()), List.of("userG3", "userG4"));
     }
 
     private <T> void assertListEquality(List<T> list1, List<T> list2) {

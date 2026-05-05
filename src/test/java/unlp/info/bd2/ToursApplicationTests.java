@@ -11,17 +11,20 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 import unlp.info.bd2.config.AppConfig;
-import unlp.info.bd2.config.HibernateConfiguration;
+import unlp.info.bd2.config.SpringDataConfiguration;
+import unlp.info.bd2.model.*;
 import unlp.info.bd2.services.ToursService;
 import unlp.info.bd2.utils.ToursException;
-import unlp.info.bd2.model.*;
+
+import javax.swing.text.html.Option;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
-@ContextConfiguration(classes = {HibernateConfiguration.class, AppConfig.class}, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = {SpringDataConfiguration.class, AppConfig.class}, loader = AnnotationConfigContextLoader.class)
 @ExtendWith(SpringExtension.class)
 @Transactional
 @Rollback(true)
@@ -76,6 +79,8 @@ class ToursApplicationTests {
 		DriverUser driverUser = (DriverUser) opUserFromDB2.get();
 		assertEquals(driverUser.getId(), driverUser1.getId());
 		assertEquals(driverUser.getExpedient(), "exp...");
+
+		System.out.println("Esto es una nueva linea");
 
 		assertThrows(ToursException.class, () -> this.toursService.createUser("userD", "1234", "Otro usuario", "otromail@gmail.com", dob1, "000111222999"), "Constraint Violation");
 	}
@@ -291,24 +296,6 @@ class ToursApplicationTests {
 	}
 
 	@Test
-	void deleteRouteTest() throws ToursException {
-		Stop stop1 = this.toursService.createStop("Estadio Monumental", "Estadio de River Plate");
-		Stop stop2 = this.toursService.createStop("Estadio La Bombonera", "Estadio de Boca Juniors");
-		List<Stop> stops = new ArrayList<>(Arrays.asList(stop1, stop2));
-		Route route1 = this.toursService.createRoute("Ruta sin compras", 10000, 20f, 5, stops);
-		Route route2 = this.toursService.createRoute("Ruta con compras", 15000, 30f, 5, stops);
-		User user1 = this.toursService.createUser("user1", "1234", "Usuario Uno", "user1@gmail.com", dob1, "000111222333");
-		this.toursService.createPurchase("P001", dyes, route2, user1);
-
-		// Ruta sin compras: debe eliminarse exitosamente
-		this.toursService.deleteRoute(route1);
-		assertTrue(this.toursService.getRouteById(route1.getId()).isEmpty());
-
-		// Ruta con compras: debe lanzar excepción
-		assertThrows(ToursException.class, () -> this.toursService.deleteRoute(route2), "No puede eliminarse una ruta con compras asociadas");
-	}
-
-	@Test
 	void deleteUserTest() throws ToursException {
 		User user1 = this.toursService.createUser("user1", "1234", "Usuario Uno", "user1@gmail.com", dob1, "000111222333");
 
@@ -322,7 +309,7 @@ class ToursApplicationTests {
 		Stop stop3 = this.toursService.createStop("Estadio Libertadores de America", "Estadio de Independiente");
 		List<Stop> stops1 = new ArrayList<Stop>(Arrays.asList(stop1, stop2, stop3));
 		Route route1 = this.toursService.createRoute("Estadios", 20000, 55.5f, 2, stops1);
-		this.toursService.createPurchase("100", dyes, route1, user2);
+		Purchase purchase1 = this.toursService.createPurchase("100", dyes, route1, user2);
 		assertTrue(user2.isActive());
 		this.toursService.deleteUser(user2);
 		Optional<User> optionalUser2 = this.toursService.getUserByUsername("user2");

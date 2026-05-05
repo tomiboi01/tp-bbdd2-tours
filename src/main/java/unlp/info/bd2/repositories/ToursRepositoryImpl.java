@@ -4,322 +4,272 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
 
-import unlp.info.bd2.model.*;
+import unlp.info.bd2.model.DriverUser;
+import unlp.info.bd2.model.ItemService;
+import unlp.info.bd2.model.Purchase;
+import unlp.info.bd2.model.Review;
+import unlp.info.bd2.model.Route;
+import unlp.info.bd2.model.Service;
+import unlp.info.bd2.model.Stop;
+import unlp.info.bd2.model.Supplier;
+import unlp.info.bd2.model.TourGuideUser;
+import unlp.info.bd2.model.User;
+import unlp.info.bd2.repositories.jpa.ItemServiceRepository;
+import unlp.info.bd2.repositories.jpa.PurchaseRepository;
+import unlp.info.bd2.repositories.jpa.ReviewRepository;
+import unlp.info.bd2.repositories.jpa.RouteRepository;
+import unlp.info.bd2.repositories.jpa.ServiceRepository;
+import unlp.info.bd2.repositories.jpa.StopRepository;
+import unlp.info.bd2.repositories.jpa.SupplierRepository;
+import unlp.info.bd2.repositories.jpa.UserRepository;
 import unlp.info.bd2.utils.ToursException;
 
 public class ToursRepositoryImpl implements ToursRepository {
+
     @Autowired
-    protected SessionFactory sessionFactory;
+    private UserRepository userRepository;
+
+    @Autowired
+    private StopRepository stopRepository;
+
+    @Autowired
+    private RouteRepository routeRepository;
+
+    @Autowired
+    private SupplierRepository supplierRepository;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository;
+
+    @Autowired
+    private ItemServiceRepository itemServiceRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
     @Override
     public User createUser(User user) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(user);
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
     public DriverUser createDriverUser(DriverUser driverUser) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(driverUser);
-        return driverUser;
+        return userRepository.save(driverUser);
     }
-
 
     @Override
     public TourGuideUser createTourGuideUser(TourGuideUser tourGuideUser) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(tourGuideUser);
-        return tourGuideUser;
+        return userRepository.save(tourGuideUser);
     }
 
     @Override
     public Optional<User> getUserById(Long id) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        User user = session.get(User.class, id);
-        return Optional.ofNullable(user);
+        return userRepository.findById(id);
     }
 
     @Override
     public Optional<User> getUserByUsername(String username) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        User user = session.createQuery("FROM User WHERE username = :username", User.class)
-                .setParameter("username", username)
-                .uniqueResult();
-        return Optional.ofNullable(user);
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public User updateUser(User user) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            return session.merge(user);
-        } catch (Exception e) {
-            throw new ToursException("Error updating user: " + e.getMessage());
-        }
+        return userRepository.save(user);
     }
 
     @Override
-
     public void deleteUser(User user) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.remove(user);
+        userRepository.delete(user);
     }
 
     @Override
-
     public Stop createStop(String name, String description) throws ToursException {
-        Stop stop = new Stop(name, description);
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(stop);
-        return stop;
+        return stopRepository.save(new Stop(name, description));
     }
 
     @Override
     public List<Stop> getStopByNameStart(String name) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("FROM Stop WHERE name LIKE :name", Stop.class)
-                .setParameter("name", name + "%")
-                .getResultList();
+        return stopRepository.findByNameStartingWith(name);
     }
 
     @Override
     public Route createRoute(Route route) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(route);
-        return route;
+        return routeRepository.save(route);
     }
 
     @Override
     public Optional<Route> getRouteById(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        Route route = session.get(Route.class, id);
-        return Optional.ofNullable(route);
+        return routeRepository.findById(id);
     }
-    
 
     @Override
     public List<Route> getRoutesBelowPrice(float price) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("FROM Route WHERE price < :price", Route.class)
-                .setParameter("price", price)
-                .getResultList();
-    }   
+        return routeRepository.findByPriceLessThan(price);
+    }
 
     @Override
     public void assignDriverByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignDriverByUsername'");
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ToursException("User not found with username: " + username));
+        if (!(user instanceof DriverUser driverUser)) {
+            throw new ToursException("User with username " + username + " is not a DriverUser");
+        }
+        Route route = routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found with id: " + idRoute));
+        driverUser.addRoute(route);
+        routeRepository.save(route);
+        userRepository.save(driverUser);
     }
 
     @Override
     public void assignTourGuideByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignTourGuideByUsername'");
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ToursException("User not found with username: " + username));
+        if (!(user instanceof TourGuideUser tourGuideUser)) {
+            throw new ToursException("User with username " + username + " is not a TourGuideUser");
+        }
+        Route route = routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found with id: " + idRoute));
+        tourGuideUser.addRoute(route);
+        routeRepository.save(route);
+        userRepository.save(tourGuideUser);
     }
 
     @Override
     public Supplier createSupplier(Supplier supplier) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(supplier);
-        return supplier;
+        return supplierRepository.save(supplier);
     }
 
     @Override
-    public Service addServiceToSupplier(Service service, Supplier supplier)
-            throws ToursException {
-        supplier.addService(service);
-        service.setSupplier(supplier);
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(service);
-        return service;
+    public Supplier updateSupplier(Supplier supplier) throws ToursException {
+        return supplierRepository.save(supplier);
+    }
+
+    @Override
+    public void deleteSupplier(Supplier supplier) throws ToursException {
+        supplierRepository.delete(supplier);
     }
 
     @Override
     public Service updateServicePriceById(Long id, float newPrice) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        Service service = session.get(Service.class, id);
-        if (service == null) {
-            throw new ToursException("Service not found with id: " + id);
-        }
+        Service service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ToursException("Service not found with id: " + id));
         service.setPrice(newPrice);
-        session.merge(service);
-        return service;
+        return serviceRepository.save(service);
     }
 
     @Override
     public Optional<Supplier> getSupplierById(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        Supplier supplier = session.get(Supplier.class, id);
-        return Optional.ofNullable(supplier);
+        return supplierRepository.findById(id);
     }
 
     @Override
     public Optional<Supplier> getSupplierByAuthorizationNumber(String authorizationNumber) {
-        Session session = sessionFactory.getCurrentSession();
-        Supplier supplier = session.createQuery("FROM Supplier WHERE authorizationNumber = :authorizationNumber", Supplier.class)
-                .setParameter("authorizationNumber", authorizationNumber)
-                .getSingleResultOrNull();
-        return Optional.ofNullable(supplier);
+        return supplierRepository.findByAuthorizationNumber(authorizationNumber);
     }
-    
 
     @Override
     public Optional<Service> getServiceByNameAndSupplierId(String name, Long id) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        Service service = session.createQuery("FROM Service WHERE name = :name AND supplier.id = :supplierId", Service.class)
-                .setParameter("name", name)
-                .setParameter("supplierId", id)
-                .getSingleResultOrNull();
-        return Optional.ofNullable(service);
+        return serviceRepository.findByNameAndSupplierId(name, id);
+    }
+
+    @Override
+    public Service addServiceToSupplier(Service service, Supplier supplier) throws ToursException {
+        service.setSupplier(supplier);
+        supplier.addService(service);
+        return serviceRepository.save(service);
     }
 
     @Override
     public Purchase createPurchase(Purchase purchase) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(purchase);
-        return purchase;
+        return purchaseRepository.save(purchase);
     }
-    
 
     @Override
     public ItemService addItemToPurchase(Service service, int quantity, Purchase purchase) throws ToursException {
         ItemService itemService = new ItemService(service, quantity, purchase);
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(itemService);
-        return itemService;
+        purchase.getItemServiceList().add(itemService);
+        return itemServiceRepository.save(itemService);
     }
 
     @Override
     public Optional<Purchase> getPurchaseByCode(String code) {
-        Session session = sessionFactory.getCurrentSession();
-        Purchase purchase = session.createQuery("FROM Purchase WHERE code = :code", Purchase.class)
-                .setParameter("code", code)
-                .getSingleResultOrNull();
-        return Optional.ofNullable(purchase);
+        return purchaseRepository.findByCode(code);
     }
-    
 
     @Override
     public void deletePurchase(Purchase purchase) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.remove(purchase);
+        purchaseRepository.delete(purchase);
     }
 
     @Override
     public Review addReviewToPurchase(int rating, String comment, Purchase purchase) throws ToursException {
         Review review = new Review(rating, comment, purchase);
-        Session session = sessionFactory.getCurrentSession();
-        session.persist(review);
-        return review;
+        purchase.setReview(review);
+        return reviewRepository.save(review);
     }
 
     @Override
     public void deleteRoute(Route route) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.remove(route);
+        routeRepository.delete(route);
     }
 
     @Override
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("FROM Purchase WHERE user.username = :username", Purchase.class)
-                .setParameter("username", username)
-                .getResultList();
+        return purchaseRepository.findByUserUsername(username);
     }
 
     @Override
     public List<User> getUserSpendingMoreThan(float mount) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT p.user FROM Purchase p GROUP BY p.user HAVING SUM(p.totalPrice) > :mount", User.class)
-                .setParameter("mount", mount)
-                .getResultList();
+        return purchaseRepository.findUsersSpendingMoreThan(mount);
     }
 
     @Override
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT p.itemServiceList.service.supplier FROM Purchase p JOIN p.itemServiceList GROUP BY p.itemServiceList.service.supplier ORDER BY COUNT(p) DESC", Supplier.class)
-                .setMaxResults(n)
-                .getResultList();
+        return purchaseRepository.findTopSuppliersInPurchases(PageRequest.of(0, n));
     }
 
     @Override
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT COUNT(*) FROM Purchase WHERE date BETWEEN :start AND :end", Long.class)
-                .setParameter("start", start)
-                .setParameter("end", end)
-                .getSingleResult();
+        return purchaseRepository.countPurchasesBetweenDates(start, end);
     }
 
     @Override
     public List<Route> getRoutesWithStop(Stop stop) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT r FROM Route r JOIN r.stops s WHERE s.id = :stopId", Route.class)
-                .setParameter("stopId", stop.getId())
-                .getResultList();
+        return routeRepository.findRoutesWithStop(stop.getId());
     }
 
     @Override
     public Long getMaxStopOfRoutes() {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT MAX(COUNT(s)) FROM Route r JOIN r.stops s GROUP BY r.id", Long.class)
-                .getSingleResult();
+        return routeRepository.findMaxStopOfRoutes();
     }
 
     @Override
     public List<Route> getRoutsNotSell() {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT r FROM Route r LEFT JOIN Purchase p ON r.id = p.route.id WHERE p.id IS NULL", Route.class)
-                .getResultList();
-        
-
+        return routeRepository.findRoutsNotSell();
     }
 
     @Override
     public List<Route> getTop3RoutesWithMaxRating() {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT r FROM Route r JOIN Purchase p ON r.id = p.route.id JOIN Review rev ON p.id = rev.purchase.id GROUP BY r.id ORDER BY AVG(rev.rating) DESC", Route.class)
-                .setMaxResults(3)
-                .getResultList();
-
+        return routeRepository.findTop3RoutesWithMaxRating(PageRequest.of(0, 3));
     }
 
     @Override
     public Service getMostDemandedService() {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT s FROM Service s JOIN ItemService is ON s.id = is.service.id GROUP BY s.id ORDER BY SUM(is.quantity) DESC", Service.class)
-                .setMaxResults(1)
-                .getSingleResultOrNull();
+        return serviceRepository.findMostDemandedService(PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public List<TourGuideUser> getTourGuidesWithRating1() {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT u FROM TourGuideUser u JOIN Review r ON u.id = r.purchase.user.id WHERE r.rating = 1", TourGuideUser.class)
-                .getResultList();
+        return userRepository.findTourGuidesWithRating1();
     }
-
-    @Override
-    public Supplier updateSupplier(Supplier supplier) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        return session.merge(supplier);
-    }
-
-    @Override
-    public void deleteSupplier(Supplier supplier) throws ToursException {
-        Session session = sessionFactory.getCurrentSession();
-        session.remove(supplier);
-    }
-
-
-    
-
-    
-    
 }
